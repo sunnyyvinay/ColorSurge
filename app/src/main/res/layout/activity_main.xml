@@ -62,7 +62,10 @@
             android:layout_marginBottom="20dp"
             android:background="?attr/colorPrimary"
             android:text="@string/CameraOption"
-            android:textColor="?attr/colorAccent" />
+            android:textColor="?attr/colorAccent"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"/>
 
         <Button
             android:id="@+id/fileButton"
@@ -72,7 +75,10 @@
             android:layout_marginTop="32dp"
             android:layout_marginBottom="225dp"
             android:background="?attr/colorPrimary"
-            android:text="@string/FileOption" />
+            android:text="@string/FileOption"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"/>
 
     </LinearLayout>
 

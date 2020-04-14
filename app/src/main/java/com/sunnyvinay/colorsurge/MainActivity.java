@@ -2,6 +2,7 @@ package com.sunnyvinay.colorsurge;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,13 +23,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Go to camera
+                Intent intent = new Intent(MainActivity.this, PictureActivity.class);
+                intent.putExtra("Location", "Camera");
+                startActivity(intent);
             }
         });
 
         fileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Go to files
+                // Go to gallery
+                Intent intent = new Intent(MainActivity.this, PictureActivity.class);
+                intent.putExtra("Location", "Gallery");
+                startActivity(intent);
             }
         });
     }
