@@ -1,6 +1,7 @@
 package com.sunnyvinay.colorsurge;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -13,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +23,11 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -31,8 +38,17 @@ import java.util.Date;
 public class PictureActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
     private static final int GALLERY_REQUEST = 1889;
+
     private ImageView pictureView;
     String currentPhotoPath;
+    Bitmap pictureBit = null;
+
+    ActionBar bar;
+    private ImageView fromColorImage;
+    private TextView redColor;
+    private TextView greenColor;
+    private TextView blueColor;
+    private TextView hexText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +56,14 @@ public class PictureActivity extends AppCompatActivity {
         setContentView(R.layout.activity_picture);
 
         pictureView = findViewById(R.id.pictureView);
+        fromColorImage = findViewById(R.id.fromColorImage);
+        redColor = findViewById(R.id.redColor);
+        greenColor = findViewById(R.id.greenColor);
+        blueColor = findViewById(R.id.blueColor);
+        hexText = findViewById(R.id.hexText);
+
+        bar = getSupportActionBar();
+        bar.setDisplayHomeAsUpEnabled(true);
 
         if ((getIntent().getStringExtra("Location")).equals("Camera")) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
@@ -92,8 +116,7 @@ public class PictureActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_REQUEST:
-                    Bitmap bitmap = null;
-                    BitmapFactory.Options options = null;
+                    BitmapFactory.Options options;
                     String[] projection = new String[]{
                             MediaStore.Images.ImageColumns._ID,
                             MediaStore.Images.ImageColumns.DATA,
@@ -111,7 +134,7 @@ public class PictureActivity extends AppCompatActivity {
 
                             try (ParcelFileDescriptor pfd = this.getContentResolver().openFileDescriptor(imageUri, "r")) {
                                 if (pfd != null) {
-                                    bitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
+                                    pictureBit = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
                                 }
                             } catch (IOException ex) {
                                 Toast.makeText(this, "An error has occurred. Try again later.", Toast.LENGTH_LONG).show();
@@ -126,14 +149,14 @@ public class PictureActivity extends AppCompatActivity {
                                 options.inSampleSize = 2;
 
                                 try {
-                                    bitmap = BitmapFactory.decodeFile(imageLocation, options);
+                                    pictureBit = BitmapFactory.decodeFile(imageLocation, options);
                                 } catch (Exception e) {
                                     Toast.makeText(this, "An error has occurred. Try again later.", Toast.LENGTH_LONG).show();
                                     e.printStackTrace();
                                 }
                             }
                         }
-                        pictureView.setImageBitmap(bitmap);
+                        pictureView.setImageBitmap(pictureBit);
                     }
                     break;
 
@@ -148,10 +171,50 @@ public class PictureActivity extends AppCompatActivity {
                     // Decode the image file into a Bitmap sized to fill the View
                     bmOptions.inJustDecodeBounds = false;
 
-                    Bitmap bitmap2 = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-                    pictureView.setImageBitmap(bitmap2);
+                    pictureBit = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+                    pictureView.setImageBitmap(pictureBit);
                     break;
             }
+
+            //TODO: Add accessibility for onTouch
+            //TODO: Change font of instructions
+            //TODO: Keep RGB and Hex in place
+            pictureView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    try {
+                        Matrix inverse = new Matrix();
+                        pictureView.getImageMatrix().invert(inverse);
+                        float[] touchPoint = new float[] {motionEvent.getX(), motionEvent.getY()};
+                        inverse.mapPoints(touchPoint);
+                        int x = Integer.valueOf((int)touchPoint[0]);
+                        int y = Integer.valueOf((int)touchPoint[1]);
+                        int pixel = pictureBit.getPixel(x,y);
+
+                        int red = Color.red(pixel);
+                        redColor.setText("R: " + red);
+                        int blue = Color.blue(pixel);
+                        blueColor.setText("B: " + blue);
+                        int green = Color.green(pixel);
+                        greenColor.setText("G: " + green);
+
+                        String hex = String.format("#%02X%02X%02X", red, green, blue);
+                        hexText.setText("Hex: " + hex);
+
+                        fromColorImage.setColorFilter(Color.parseColor(hex));
+                        //Log.i("Color from Pixel", hex);
+
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                        Toast toast = Toast.makeText(PictureActivity.this,
+                                "Color not chosen",
+                                Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+
+                    return false;
+                }
+            });
         }
     }
 
@@ -193,5 +256,10 @@ public class PictureActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return true;
     }
 }

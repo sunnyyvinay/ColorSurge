@@ -8,7 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="BlueSurge" parent="Theme.AppCompat.NoActionBar" >
+    <style name="BlueSurge" parent="Theme.AppCompat" >
         <item name="colorPrimary">@color/lightBlue</item>
         <item name="colorPrimaryDark">@color/darkBlue</item>
         <item name="colorAccent">@color/white</item>
