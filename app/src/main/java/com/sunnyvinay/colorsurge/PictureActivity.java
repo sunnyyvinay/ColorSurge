@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -111,6 +112,7 @@ public class PictureActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Result code is RESULT_OK only if the user selects an Image
         if (resultCode == Activity.RESULT_OK) {
@@ -176,10 +178,8 @@ public class PictureActivity extends AppCompatActivity {
                     break;
             }
 
-            //TODO: Add accessibility for onTouch
-            //TODO: Change font of instructions
-            //TODO: Keep RGB and Hex in place
             pictureView.setOnTouchListener(new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     try {
@@ -187,8 +187,8 @@ public class PictureActivity extends AppCompatActivity {
                         pictureView.getImageMatrix().invert(inverse);
                         float[] touchPoint = new float[] {motionEvent.getX(), motionEvent.getY()};
                         inverse.mapPoints(touchPoint);
-                        int x = Integer.valueOf((int)touchPoint[0]);
-                        int y = Integer.valueOf((int)touchPoint[1]);
+                        int x = (int) touchPoint[0];
+                        int y = (int) touchPoint[1];
                         int pixel = pictureBit.getPixel(x,y);
 
                         int red = Color.red(pixel);
@@ -201,6 +201,7 @@ public class PictureActivity extends AppCompatActivity {
                         String hex = String.format("#%02X%02X%02X", red, green, blue);
                         hexText.setText("Hex: " + hex);
 
+                        fromColorImage.setVisibility(View.VISIBLE);
                         fromColorImage.setColorFilter(Color.parseColor(hex));
                         //Log.i("Color from Pixel", hex);
 

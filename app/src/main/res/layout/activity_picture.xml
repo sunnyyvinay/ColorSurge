@@ -25,7 +25,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="8dp"
-                    android:fontFamily="casual"
+                    android:fontFamily="sans-serif"
                     android:text="@string/RecolorInstructions"
                     android:textAlignment="center"
                     android:textColor="?attr/colorAccent"
@@ -42,7 +42,7 @@
             <ImageView
                 android:id="@+id/pictureView"
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_launcher_background"></ImageView>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -73,6 +73,7 @@
                     android:layout_height="20dp"
                     android:layout_marginStart="16dp"
                     android:src="@android:color/holo_blue_light"
+                    android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -85,7 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="R: -"
+                    android:text="R: ---"
                     android:textColor="#FF0000"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -99,7 +100,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="G: -"
+                    android:text="G: ---"
                     android:textColor="#00FF00"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -113,7 +114,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="B: -"
+                    android:text="B: ---"
                     android:textColor="#2C71E7"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -133,6 +134,25 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/blueColor"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/toText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="64dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="casual"
+                    android:text="@string/To"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </ScrollView>
