@@ -10,6 +10,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -27,12 +29,23 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.OnColorSelectedListener;
+import com.flask.colorpicker.builder.ColorPickerClickListener;
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
+import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -51,6 +64,10 @@ public class PictureActivity extends AppCompatActivity {
     private TextView blueColor;
     private TextView hexText;
 
+    private ImageView toColorImage;
+    private int toColor = Color.parseColor("#0099ff");
+    private Button recolorButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +79,11 @@ public class PictureActivity extends AppCompatActivity {
         greenColor = findViewById(R.id.greenColor);
         blueColor = findViewById(R.id.blueColor);
         hexText = findViewById(R.id.hexText);
+
+        toColorImage = findViewById(R.id.toColorImage);
+        toColorImage.setVisibility(View.VISIBLE);
+        toColorImage.setColorFilter(Color.parseColor("#0099ff"));
+        //recolorButton = findViewById(R.id.recolorButton);
 
         bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
@@ -115,6 +137,7 @@ public class PictureActivity extends AppCompatActivity {
     @SuppressLint("ClickableViewAccessibility")
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Result code is RESULT_OK only if the user selects an Image
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_REQUEST:
@@ -177,7 +200,6 @@ public class PictureActivity extends AppCompatActivity {
                     pictureView.setImageBitmap(pictureBit);
                     break;
             }
-
             pictureView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
                 @Override
@@ -185,11 +207,11 @@ public class PictureActivity extends AppCompatActivity {
                     try {
                         Matrix inverse = new Matrix();
                         pictureView.getImageMatrix().invert(inverse);
-                        float[] touchPoint = new float[] {motionEvent.getX(), motionEvent.getY()};
+                        float[] touchPoint = new float[]{motionEvent.getX(), motionEvent.getY()};
                         inverse.mapPoints(touchPoint);
                         int x = (int) touchPoint[0];
                         int y = (int) touchPoint[1];
-                        int pixel = pictureBit.getPixel(x,y);
+                        int pixel = pictureBit.getPixel(x, y);
 
                         int red = Color.red(pixel);
                         redColor.setText("R: " + red);
@@ -203,7 +225,35 @@ public class PictureActivity extends AppCompatActivity {
 
                         fromColorImage.setVisibility(View.VISIBLE);
                         fromColorImage.setColorFilter(Color.parseColor(hex));
-                        //Log.i("Color from Pixel", hex);
+
+                        toColorImage.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ColorPickerDialogBuilder
+                                        .with(PictureActivity.this, R.style.BlueSurge)
+                                        .setTitle("Choose color")
+                                        .initialColor(toColor)
+                                        .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                                        .density(8)
+                                        .setOnColorSelectedListener(new OnColorSelectedListener() {
+                                            @Override
+                                            public void onColorSelected(int selectedColor) { }
+                                        })
+                                        .setPositiveButton("SELECT", new ColorPickerClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                                                toColorImage.setColorFilter(selectedColor);
+                                                toColor = selectedColor;
+                                            }
+                                        })
+                                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) { }
+                                        })
+                                        .build()
+                                        .show();
+                            }
+                        });
 
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
