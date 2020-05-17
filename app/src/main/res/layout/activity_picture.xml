@@ -17,7 +17,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/toolLayout"
                 android:layout_width="match_parent"
-                android:layout_height="50dp">
+                android:layout_height="60dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -31,14 +31,14 @@
                     <ImageButton
                         android:id="@+id/undoButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="60dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/white_undo" />
 
                     <ImageButton
                         android:id="@+id/redoButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="60dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/white_redo" />
                 </LinearLayout>

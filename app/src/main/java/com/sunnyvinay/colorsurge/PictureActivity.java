@@ -10,7 +10,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,14 +38,9 @@ import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.OnColorSelectedListener;
 import com.flask.colorpicker.builder.ColorPickerClickListener;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
-import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -211,16 +206,16 @@ public class PictureActivity extends AppCompatActivity {
                         inverse.mapPoints(touchPoint);
                         int x = (int) touchPoint[0];
                         int y = (int) touchPoint[1];
-                        int pixel = pictureBit.getPixel(x, y);
+                        final int toPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
 
-                        int red = Color.red(pixel);
+                        int red = Color.red(toPixel);
                         redColor.setText("R: " + red);
-                        int blue = Color.blue(pixel);
+                        int blue = Color.blue(toPixel);
                         blueColor.setText("B: " + blue);
-                        int green = Color.green(pixel);
+                        int green = Color.green(toPixel);
                         greenColor.setText("G: " + green);
 
-                        String hex = String.format("#%02X%02X%02X", red, green, blue);
+                        final String hex = String.format("#%02X%02X%02X", red, green, blue);
                         hexText.setText("Hex: " + hex);
 
                         fromColorImage.setVisibility(View.VISIBLE);
@@ -242,8 +237,21 @@ public class PictureActivity extends AppCompatActivity {
                                         .setPositiveButton("SELECT", new ColorPickerClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                                                // Choose color and immediately recolor image
                                                 toColorImage.setColorFilter(selectedColor);
                                                 toColor = selectedColor;
+
+                                                Bitmap resultBit = Bitmap.createBitmap(pictureBit.getWidth(), pictureBit.getHeight(), Bitmap.Config.ARGB_8888);;
+
+                                                int[] pixels = new int[pictureBit.getHeight()*pictureBit.getWidth()];
+                                                ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+                                                for (int i = 0; i < pixels.length; i++) {
+                                                    if (pixels[i] == Color.parseColor(hex)) {
+                                                        pixels[i] = selectedColor;
+                                                    }
+                                                }
+                                                resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+                                                pictureView.setImageBitmap(resultBit);
                                             }
                                         })
                                         .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
