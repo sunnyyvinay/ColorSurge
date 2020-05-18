@@ -182,13 +182,10 @@ public class PictureActivity extends AppCompatActivity {
 
                 case CAMERA_REQUEST:
                     File f = new File(currentPhotoPath);
-                    Uri contentUri = Uri.fromFile(f);
-
-                    //Toast.makeText(this, "uri "+contentUri, Toast.LENGTH_SHORT).show();
 
                     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                     bmOptions.inJustDecodeBounds = true;
-                    // Decode the image file into a Bitmap sized to fill the View
+
                     bmOptions.inJustDecodeBounds = false;
 
                     pictureBit = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
@@ -206,16 +203,17 @@ public class PictureActivity extends AppCompatActivity {
                         inverse.mapPoints(touchPoint);
                         int x = (int) touchPoint[0];
                         int y = (int) touchPoint[1];
-                        final int toPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
+                        final int originalPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
 
-                        int red = Color.red(toPixel);
-                        redColor.setText("R: " + red);
-                        int blue = Color.blue(toPixel);
-                        blueColor.setText("B: " + blue);
-                        int green = Color.green(toPixel);
-                        greenColor.setText("G: " + green);
+                        // represents RGB of original clicked on pixel
+                        final int pixRed = Color.red(originalPixel);
+                        redColor.setText("R: " + pixRed);
+                        final int pixBlue = Color.blue(originalPixel);
+                        blueColor.setText("B: " + pixBlue);
+                        final int pixGreen = Color.green(originalPixel);
+                        greenColor.setText("G: " + pixGreen);
 
-                        final String hex = String.format("#%02X%02X%02X", red, green, blue);
+                        final String hex = String.format("#%02X%02X%02X", pixRed, pixGreen, pixBlue);
                         hexText.setText("Hex: " + hex);
 
                         fromColorImage.setVisibility(View.VISIBLE);
@@ -241,15 +239,36 @@ public class PictureActivity extends AppCompatActivity {
                                                 toColorImage.setColorFilter(selectedColor);
                                                 toColor = selectedColor;
 
+                                                // Represents RGB of user selected color
+                                                int toRed = getRed(selectedColor);
+                                                int toGreen = getGreen(selectedColor);
+                                                int toBlue = getBlue(selectedColor);
+
+                                                // Represents RGB of difference between original "TO" and "FROM" colors
+                                                int fromPixR = toRed - pixRed;
+                                                int fromPixG = toGreen - pixGreen;
+                                                int fromPixB = toBlue - pixBlue;
+
                                                 Bitmap resultBit = Bitmap.createBitmap(pictureBit.getWidth(), pictureBit.getHeight(), Bitmap.Config.ARGB_8888);;
 
                                                 int[] pixels = new int[pictureBit.getHeight()*pictureBit.getWidth()];
                                                 ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+
                                                 for (int i = 0; i < pixels.length; i++) {
-                                                    if (pixels[i] == Color.parseColor(hex)) {
-                                                        pixels[i] = selectedColor;
+                                                    // Represents RGB of current pixel
+                                                    int fromR = getRed(pixels[i]);
+                                                    int fromG = getGreen(pixels[i]);
+                                                    int fromB = getBlue(pixels[i]);
+
+                                                    if (isShade(fromR, fromG, fromB, pixRed, pixGreen, pixBlue)) {
+                                                        int newR = (fromPixR >= 0) ? (Math.min(255, fromR + (fromPixR))) : (Math.max(0, fromR + (fromPixR)));
+                                                        int newG = (fromPixG >= 0) ? (Math.min(255, fromG + (fromPixG))) : (Math.max(0, fromG + (fromPixG)));
+                                                        int newB = (fromPixB >= 0) ? (Math.min(255, fromB + (fromPixB))) : (Math.max(0, fromB + (fromPixB)));
+
+                                                        pixels[i] = createRGBFromColors(newR, newG, newB);
                                                     }
                                                 }
+
                                                 resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
                                                 pictureView.setImageBitmap(resultBit);
                                             }
@@ -275,6 +294,30 @@ public class PictureActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public boolean isShade(int fromR, int fromG, int fromB, int toR, int toG, int toB) {
+        return (fromR >= toR-20 && fromR <= toR+20) && // Determines whether certain pixel is a shade of the "TO" color
+                (fromG >= toG-20 && fromG <= toG+20) &&
+                (fromB >= toB-20 && fromB <= toB+20);
+    }
+
+    public static int getRed(int rgb) { return (rgb & 0x00FF0000) >> 16; }
+
+    public static int getGreen(int rgb) { return (rgb & 0x0000FF00) >> 8; }
+
+    public static int getBlue(int rgb) { return rgb & 0x000000FF; }
+
+    public static int createRGBFromColors(int red, int green, int blue) {
+        int rgb = 0;
+
+        rgb |= blue;
+        rgb |= green << 8;
+        rgb |= red << 16;
+
+        rgb |= 0xFF000000;
+
+        return rgb;
     }
 
     private void openCameraTocaptureImage() {
