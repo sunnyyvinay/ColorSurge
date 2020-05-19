@@ -41,6 +41,14 @@
                         android:layout_height="60dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/white_redo" />
+
+                    <ImageButton
+                        android:id="@+id/saveButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="60dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/white_save" />
+
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

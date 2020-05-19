@@ -29,7 +29,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +42,7 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class PictureActivity extends AppCompatActivity {
@@ -61,7 +62,12 @@ public class PictureActivity extends AppCompatActivity {
 
     private ImageView toColorImage;
     private int toColor = Color.parseColor("#0099ff");
-    private Button recolorButton;
+    private ImageButton undoButton;
+    private ImageButton redoButton;
+    private ImageButton saveButton;
+
+    private ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    private ArrayList<Bitmap> undoneBitmaps = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +85,12 @@ public class PictureActivity extends AppCompatActivity {
         toColorImage.setVisibility(View.VISIBLE);
         toColorImage.setColorFilter(Color.parseColor("#0099ff"));
         //recolorButton = findViewById(R.id.recolorButton);
+
+        undoButton = findViewById(R.id.undoButton);
+        undoButton.setEnabled(false);
+        redoButton = findViewById(R.id.redoButton);
+        redoButton.setEnabled(false);
+        saveButton = findViewById(R.id.saveButton);
 
         bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
@@ -130,7 +142,7 @@ public class PictureActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, final int resultCode, Intent data) {
         // Result code is RESULT_OK only if the user selects an Image
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
@@ -176,6 +188,7 @@ public class PictureActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        bitmaps.add(pictureBit);
                         pictureView.setImageBitmap(pictureBit);
                     }
                     break;
@@ -189,9 +202,11 @@ public class PictureActivity extends AppCompatActivity {
                     bmOptions.inJustDecodeBounds = false;
 
                     pictureBit = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+                    bitmaps.add(pictureBit);
                     pictureView.setImageBitmap(pictureBit);
                     break;
             }
+
             pictureView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
                 @Override
@@ -270,7 +285,38 @@ public class PictureActivity extends AppCompatActivity {
                                                 }
 
                                                 resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+                                                bitmaps.add(resultBit);
                                                 pictureView.setImageBitmap(resultBit);
+
+                                                undoButton.setEnabled(true);
+                                                undoButton.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        if (bitmaps.size() > 1) {
+                                                            pictureView.setImageBitmap(bitmaps.get(bitmaps.size() - 2));
+                                                            undoneBitmaps.add(bitmaps.remove(bitmaps.size() - 1));
+                                                            if (bitmaps.size() == 1) {
+                                                                undoButton.setEnabled(false);
+                                                            }
+                                                            redoButton.setEnabled(true);
+                                                        }
+
+                                                        redoButton.setEnabled(true);
+                                                    }
+                                                    });
+                                                redoButton.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                        public void onClick(View v) {
+                                                        if (undoneBitmaps.size() > 0) {
+                                                            pictureView.setImageBitmap(undoneBitmaps.get(undoneBitmaps.size()-1));
+                                                            bitmaps.add(undoneBitmaps.remove(undoneBitmaps.size()-1));
+                                                            if (undoneBitmaps.size() == 0) {
+                                                                redoButton.setEnabled(false);
+                                                            }
+                                                            undoButton.setEnabled(true);
+                                                        }
+                                                    }
+                                                });
                                             }
                                         })
                                         .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -291,6 +337,17 @@ public class PictureActivity extends AppCompatActivity {
                     }
 
                     return false;
+                }
+            });
+
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (pictureBit != null) {
+                        Toast.makeText(PictureActivity.this, "Saved to Gallery", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(PictureActivity.this, "Unable to save", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
