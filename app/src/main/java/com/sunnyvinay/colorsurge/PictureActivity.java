@@ -10,6 +10,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -40,7 +41,9 @@ import com.flask.colorpicker.builder.ColorPickerClickListener;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -343,20 +346,48 @@ public class PictureActivity extends AppCompatActivity {
             saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (pictureBit != null) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            ContentValues values = new ContentValues();
+                            String filename = System.currentTimeMillis() + ".jpg";
+
+                            values.put(MediaStore.Images.Media.TITLE, filename);
+                            values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
+                            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                            values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+                            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+                            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Colorsurge/");
+
+                            Uri uri = getApplicationContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                            if (uri != null) {
+                                saveImageToStream(((BitmapDrawable) pictureView.getDrawable()).getBitmap(), getApplicationContext().getContentResolver().openOutputStream(uri));
+                                values.put(MediaStore.Images.Media.IS_PENDING, false);
+                                getApplicationContext().getContentResolver().update(uri, values, null, null);
+                            }
+
+                        } else {
+                            MediaStore.Images.Media.insertImage(getContentResolver(), ((BitmapDrawable) pictureView.getDrawable()).getBitmap(), "", "");
+                        }
+
                         Toast.makeText(PictureActivity.this, "Saved to Gallery", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(PictureActivity.this, "Unable to save", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(PictureActivity.this, "Unable to save. Try again later", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
                     }
                 }
             });
+
+        } else {
+            // Activity result is not OK - user did not select a photo
+            Intent intent = new Intent(PictureActivity.this, MainActivity.class);
+            startActivity(intent);
         }
     }
 
     public boolean isShade(int fromR, int fromG, int fromB, int toR, int toG, int toB) {
-        return (fromR >= toR-20 && fromR <= toR+20) && // Determines whether certain pixel is a shade of the "TO" color
-                (fromG >= toG-20 && fromG <= toG+20) &&
-                (fromB >= toB-20 && fromB <= toB+20);
+        return (fromR >= toR-40 && fromR <= toR+40) && // Determines whether certain pixel is a shade of the "TO" color
+                (fromG >= toG-40 && fromG <= toG+40) &&
+                (fromB >= toB-40 && fromB <= toB+40);
     }
 
     public static int getRed(int rgb) { return (rgb & 0x00FF0000) >> 16; }
@@ -388,7 +419,7 @@ public class PictureActivity extends AppCompatActivity {
             } catch (IOException ex) {
                 // Error occurred while creating the File
                 ex.printStackTrace();
-                Log.i("File error", "File error");
+                Toast.makeText(PictureActivity.this, "Error ocurred. Try again later", Toast.LENGTH_LONG).show();
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -420,5 +451,17 @@ public class PictureActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         finish();
         return true;
+    }
+
+    private void saveImageToStream(Bitmap bitmap, OutputStream outputStream) {
+        if (outputStream != null) {
+            try {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                outputStream.close();
+            } catch (Exception e) {
+                Toast.makeText(PictureActivity.this, "Unable to save. Try again later", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
     }
 }
