@@ -41,8 +41,10 @@ import com.flask.colorpicker.builder.ColorPickerClickListener;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,8 +115,8 @@ public class PictureActivity extends AppCompatActivity {
             } else { // Permissions already granted
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
-                String[] mimeTypes = {"image/jpeg", "image/png"};
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                //String[] mimeTypes = {"image/jpeg", "image/png"};
+                //intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                 startActivityForResult(intent, GALLERY_REQUEST);
             }
         }
@@ -151,7 +153,9 @@ public class PictureActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_REQUEST:
+                    /*
                     BitmapFactory.Options options;
+
                     String[] projection = new String[]{
                             MediaStore.Images.ImageColumns._ID,
                             MediaStore.Images.ImageColumns.DATA,
@@ -191,8 +195,25 @@ public class PictureActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        cursor.close();
+
                         bitmaps.add(pictureBit);
                         pictureView.setImageBitmap(pictureBit);
+                    }
+                    */
+                    InputStream inputStream;
+                    try {
+                        inputStream = getApplicationContext().getContentResolver().openInputStream(data.getData());
+                        pictureBit = BitmapFactory.decodeStream(inputStream);
+                        bitmaps.add(pictureBit);
+                        pictureView.setImageBitmap(pictureBit);
+                        inputStream.close();
+                    } catch (FileNotFoundException e) {
+                        Toast.makeText(this, "File not found", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    } catch (NullPointerException | IOException e) {
+                        Toast.makeText(this, "An error occurred. Try again later", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
                     }
                     break;
 
@@ -288,6 +309,19 @@ public class PictureActivity extends AppCompatActivity {
                                                 }
 
                                                 resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+
+                                                /*
+                                                redColor.setText("R: " + Color.red(selectedColor));
+                                                blueColor.setText("B: " + Color.blue(selectedColor));
+                                                greenColor.setText("G: " + Color.green(selectedColor));
+
+                                                String newHex = String.format("#%02X%02X%02X", Color.red(selectedColor), Color.green(selectedColor), Color.blue(selectedColor));
+                                                hexText.setText("Hex: " + newHex);
+
+                                                fromColorImage.setColorFilter(Color.parseColor(newHex));
+                                                
+                                                 */
+
                                                 bitmaps.add(resultBit);
                                                 pictureView.setImageBitmap(resultBit);
 
@@ -333,10 +367,7 @@ public class PictureActivity extends AppCompatActivity {
 
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
-                        Toast toast = Toast.makeText(PictureActivity.this,
-                                "Color not chosen",
-                                Toast.LENGTH_LONG);
-                        toast.show();
+                        Toast.makeText(PictureActivity.this, "Color not chosen", Toast.LENGTH_LONG).show();
                     }
 
                     return false;
@@ -356,7 +387,7 @@ public class PictureActivity extends AppCompatActivity {
                             values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
                             values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
                             values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-                            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Colorsurge/");
+                            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/");
 
                             Uri uri = getApplicationContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                             if (uri != null) {
