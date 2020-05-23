@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:screenOrientation="portrait"
     tools:context=".PictureActivity">
 
     <ScrollView
@@ -11,7 +12,7 @@
         android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,6 +24,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:orientation="horizontal"
+                    android:layout_gravity="center"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -33,6 +35,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="60dp"
                         android:layout_weight="1"
+                        android:contentDescription="@string/undo"
                         app:srcCompat="@drawable/white_undo" />
 
                     <ImageButton
@@ -40,13 +43,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="60dp"
                         android:layout_weight="1"
+                        android:contentDescription="@string/redo"
                         app:srcCompat="@drawable/white_redo" />
+
+                    <ImageButton
+                        android:id="@+id/eraseButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="60dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/white_erase" />
 
                     <ImageButton
                         android:id="@+id/saveButton"
                         android:layout_width="wrap_content"
                         android:layout_height="60dp"
                         android:layout_weight="1"
+                        android:contentDescription="@string/save"
                         app:srcCompat="@drawable/white_save" />
 
                 </LinearLayout>
@@ -57,6 +69,7 @@
                 android:id="@+id/pictureView"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
+                android:contentDescription="@string/picture"
                 android:src="@drawable/ic_launcher_background"></ImageView>
 
             <androidx.constraintlayout.widget.ConstraintLayout

@@ -9,12 +9,11 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentUris;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -24,9 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,7 +39,6 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,6 +70,12 @@ public class PictureActivity extends AppCompatActivity {
     private ArrayList<Bitmap> bitmaps = new ArrayList<>();
     private ArrayList<Bitmap> undoneBitmaps = new ArrayList<>();
 
+    private ImageButton eraseButton;
+    float currentBrush;
+    float smallBrush, mediumBrush, largeBrush;
+    boolean eraseActivated = false;
+    boolean colorChanged = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +98,12 @@ public class PictureActivity extends AppCompatActivity {
         redoButton = findViewById(R.id.redoButton);
         redoButton.setEnabled(false);
         saveButton = findViewById(R.id.saveButton);
+
+        eraseButton = findViewById(R.id.eraseButton);
+        smallBrush = getResources().getInteger(R.integer.small_size);
+        mediumBrush = getResources().getInteger(R.integer.medium_size);
+        largeBrush = getResources().getInteger(R.integer.large_size);
+        currentBrush = mediumBrush;
 
         bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
@@ -153,54 +161,6 @@ public class PictureActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_REQUEST:
-                    /*
-                    BitmapFactory.Options options;
-
-                    String[] projection = new String[]{
-                            MediaStore.Images.ImageColumns._ID,
-                            MediaStore.Images.ImageColumns.DATA,
-                            MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
-                            MediaStore.Images.ImageColumns.DATE_TAKEN,
-                            MediaStore.Images.ImageColumns.MIME_TYPE,
-                            MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                    };
-                    final Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            projection, null, null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
-
-                    if (cursor.moveToFirst()) {
-                        if (Build.VERSION.SDK_INT >= 29) { // Different for Android 10
-                            Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getInt(0));
-
-                            try (ParcelFileDescriptor pfd = this.getContentResolver().openFileDescriptor(imageUri, "r")) {
-                                if (pfd != null) {
-                                    pictureBit = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
-                                }
-                            } catch (IOException ex) {
-                                Toast.makeText(this, "An error has occurred. Try again later.", Toast.LENGTH_LONG).show();
-                                ex.printStackTrace();
-                            }
-                        } else {
-                            String imageLocation = cursor.getString(1);
-                            File imageFile = new File(imageLocation);
-
-                            if (imageFile.exists()) {
-                                options = new BitmapFactory.Options();
-                                options.inSampleSize = 2;
-
-                                try {
-                                    pictureBit = BitmapFactory.decodeFile(imageLocation, options);
-                                } catch (Exception e) {
-                                    Toast.makeText(this, "An error has occurred. Try again later.", Toast.LENGTH_LONG).show();
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        cursor.close();
-
-                        bitmaps.add(pictureBit);
-                        pictureView.setImageBitmap(pictureBit);
-                    }
-                    */
                     InputStream inputStream;
                     try {
                         inputStream = getApplicationContext().getContentResolver().openInputStream(data.getData());
@@ -230,85 +190,94 @@ public class PictureActivity extends AppCompatActivity {
                     pictureView.setImageBitmap(pictureBit);
                     break;
             }
+            pictureView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return false;
+                }
+            });
 
             pictureView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
-                    try {
-                        Matrix inverse = new Matrix();
-                        pictureView.getImageMatrix().invert(inverse);
-                        float[] touchPoint = new float[]{motionEvent.getX(), motionEvent.getY()};
-                        inverse.mapPoints(touchPoint);
-                        int x = (int) touchPoint[0];
-                        int y = (int) touchPoint[1];
-                        final int originalPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
+                    Matrix inverse = new Matrix();
+                    pictureView.getImageMatrix().invert(inverse);
+                    float[] touchPoint = new float[]{motionEvent.getX(), motionEvent.getY()};
+                    inverse.mapPoints(touchPoint);
+                    int x = (int) touchPoint[0];
+                    int y = (int) touchPoint[1];
 
-                        // represents RGB of original clicked on pixel
-                        final int pixRed = Color.red(originalPixel);
-                        redColor.setText("R: " + pixRed);
-                        final int pixBlue = Color.blue(originalPixel);
-                        blueColor.setText("B: " + pixBlue);
-                        final int pixGreen = Color.green(originalPixel);
-                        greenColor.setText("G: " + pixGreen);
+                    if (!eraseActivated) {
+                        try {
+                            final int originalPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
 
-                        final String hex = String.format("#%02X%02X%02X", pixRed, pixGreen, pixBlue);
-                        hexText.setText("Hex: " + hex);
+                            // represents RGB of original clicked on pixel
+                            final int pixRed = Color.red(originalPixel);
+                            redColor.setText("R: " + pixRed);
+                            final int pixBlue = Color.blue(originalPixel);
+                            blueColor.setText("B: " + pixBlue);
+                            final int pixGreen = Color.green(originalPixel);
+                            greenColor.setText("G: " + pixGreen);
 
-                        fromColorImage.setVisibility(View.VISIBLE);
-                        fromColorImage.setColorFilter(Color.parseColor(hex));
+                            final String hex = String.format("#%02X%02X%02X", pixRed, pixGreen, pixBlue);
+                            hexText.setText("Hex: " + hex);
 
-                        toColorImage.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                ColorPickerDialogBuilder
-                                        .with(PictureActivity.this, R.style.BlueSurge)
-                                        .setTitle("Choose color")
-                                        .initialColor(toColor)
-                                        .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                                        .density(8)
-                                        .setOnColorSelectedListener(new OnColorSelectedListener() {
-                                            @Override
-                                            public void onColorSelected(int selectedColor) { }
-                                        })
-                                        .setPositiveButton("SELECT", new ColorPickerClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
-                                                // Choose color and immediately recolor image
-                                                toColorImage.setColorFilter(selectedColor);
-                                                toColor = selectedColor;
+                            fromColorImage.setVisibility(View.VISIBLE);
+                            fromColorImage.setColorFilter(Color.parseColor(hex));
 
-                                                // Represents RGB of user selected color
-                                                int toRed = getRed(selectedColor);
-                                                int toGreen = getGreen(selectedColor);
-                                                int toBlue = getBlue(selectedColor);
+                            toColorImage.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    ColorPickerDialogBuilder
+                                            .with(PictureActivity.this, R.style.BlueSurge)
+                                            .setTitle("Choose color")
+                                            .initialColor(toColor)
+                                            .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                                            .density(8)
+                                            .setOnColorSelectedListener(new OnColorSelectedListener() {
+                                                @Override
+                                                public void onColorSelected(int selectedColor) { }
+                                            })
+                                            .setPositiveButton("SELECT", new ColorPickerClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                                                    // Choose color and immediately recolor image
+                                                    toColorImage.setColorFilter(selectedColor);
+                                                    toColor = selectedColor;
+                                                    colorChanged = true;
 
-                                                // Represents RGB of difference between original "TO" and "FROM" colors
-                                                int fromPixR = toRed - pixRed;
-                                                int fromPixG = toGreen - pixGreen;
-                                                int fromPixB = toBlue - pixBlue;
+                                                    // Represents RGB of user selected color
+                                                    int toRed = getRed(selectedColor);
+                                                    int toGreen = getGreen(selectedColor);
+                                                    int toBlue = getBlue(selectedColor);
 
-                                                Bitmap resultBit = Bitmap.createBitmap(pictureBit.getWidth(), pictureBit.getHeight(), Bitmap.Config.ARGB_8888);;
+                                                    // Represents RGB of difference between original "TO" and "FROM" colors
+                                                    int fromPixR = toRed - pixRed;
+                                                    int fromPixG = toGreen - pixGreen;
+                                                    int fromPixB = toBlue - pixBlue;
 
-                                                int[] pixels = new int[pictureBit.getHeight()*pictureBit.getWidth()];
-                                                ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+                                                    Bitmap resultBit = Bitmap.createBitmap(pictureBit.getWidth(), pictureBit.getHeight(), Bitmap.Config.ARGB_8888);;
 
-                                                for (int i = 0; i < pixels.length; i++) {
-                                                    // Represents RGB of current pixel
-                                                    int fromR = getRed(pixels[i]);
-                                                    int fromG = getGreen(pixels[i]);
-                                                    int fromB = getBlue(pixels[i]);
+                                                    int[] pixels = new int[pictureBit.getHeight()*pictureBit.getWidth()];
+                                                    ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
 
-                                                    if (isShade(fromR, fromG, fromB, pixRed, pixGreen, pixBlue)) {
-                                                        int newR = (fromPixR >= 0) ? (Math.min(255, fromR + (fromPixR))) : (Math.max(0, fromR + (fromPixR)));
-                                                        int newG = (fromPixG >= 0) ? (Math.min(255, fromG + (fromPixG))) : (Math.max(0, fromG + (fromPixG)));
-                                                        int newB = (fromPixB >= 0) ? (Math.min(255, fromB + (fromPixB))) : (Math.max(0, fromB + (fromPixB)));
+                                                    for (int i = 0; i < pixels.length; i++) {
+                                                        // Represents RGB of current pixel
+                                                        int fromR = getRed(pixels[i]);
+                                                        int fromG = getGreen(pixels[i]);
+                                                        int fromB = getBlue(pixels[i]);
 
-                                                        pixels[i] = createRGBFromColors(newR, newG, newB);
+                                                        if (isShade(fromR, fromG, fromB, pixRed, pixGreen, pixBlue)) {
+                                                            int newR = (fromPixR >= 0) ? (Math.min(255, fromR + (fromPixR))) : (Math.max(0, fromR + (fromPixR)));
+                                                            int newG = (fromPixG >= 0) ? (Math.min(255, fromG + (fromPixG))) : (Math.max(0, fromG + (fromPixG)));
+                                                            int newB = (fromPixB >= 0) ? (Math.min(255, fromB + (fromPixB))) : (Math.max(0, fromB + (fromPixB)));
+
+                                                            pixels[i] = createRGBFromColors(newR, newG, newB);
+                                                        }
                                                     }
-                                                }
 
-                                                resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
+                                                    resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
 
                                                 /*
                                                 redColor.setText("R: " + Color.red(selectedColor));
@@ -319,58 +288,128 @@ public class PictureActivity extends AppCompatActivity {
                                                 hexText.setText("Hex: " + newHex);
 
                                                 fromColorImage.setColorFilter(Color.parseColor(newHex));
-                                                
                                                  */
 
-                                                bitmaps.add(resultBit);
-                                                pictureView.setImageBitmap(resultBit);
+                                                    bitmaps.add(resultBit);
+                                                    pictureView.setImageBitmap(resultBit);
 
-                                                undoButton.setEnabled(true);
-                                                undoButton.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        if (bitmaps.size() > 1) {
-                                                            pictureView.setImageBitmap(bitmaps.get(bitmaps.size() - 2));
-                                                            undoneBitmaps.add(bitmaps.remove(bitmaps.size() - 1));
-                                                            if (bitmaps.size() == 1) {
-                                                                undoButton.setEnabled(false);
+                                                    undoButton.setEnabled(true);
+                                                    undoButton.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            if (bitmaps.size() > 1) {
+                                                                pictureView.setImageBitmap(bitmaps.get(bitmaps.size() - 2));
+                                                                undoneBitmaps.add(bitmaps.remove(bitmaps.size() - 1));
+                                                                if (bitmaps.size() == 1) {
+                                                                    undoButton.setEnabled(false);
+                                                                }
+                                                                redoButton.setEnabled(true);
                                                             }
+
                                                             redoButton.setEnabled(true);
                                                         }
-
-                                                        redoButton.setEnabled(true);
-                                                    }
                                                     });
-                                                redoButton.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
+                                                    redoButton.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
                                                         public void onClick(View v) {
-                                                        if (undoneBitmaps.size() > 0) {
-                                                            pictureView.setImageBitmap(undoneBitmaps.get(undoneBitmaps.size()-1));
-                                                            bitmaps.add(undoneBitmaps.remove(undoneBitmaps.size()-1));
-                                                            if (undoneBitmaps.size() == 0) {
-                                                                redoButton.setEnabled(false);
+                                                            if (undoneBitmaps.size() > 0) {
+                                                                pictureView.setImageBitmap(undoneBitmaps.get(undoneBitmaps.size()-1));
+                                                                bitmaps.add(undoneBitmaps.remove(undoneBitmaps.size()-1));
+                                                                if (undoneBitmaps.size() == 0) {
+                                                                    redoButton.setEnabled(false);
+                                                                }
+                                                                undoButton.setEnabled(true);
                                                             }
-                                                            undoButton.setEnabled(true);
                                                         }
-                                                    }
-                                                });
-                                            }
-                                        })
-                                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) { }
-                                        })
-                                        .build()
-                                        .show();
+                                                    });
+                                                }
+                                            })
+                                            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) { }
+                                            })
+                                            .build()
+                                            .show();
+                                }
+                            });
+
+                        } catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                            Toast.makeText(PictureActivity.this, "Color not chosen", Toast.LENGTH_LONG).show();
+                        }
+
+                    } else if (colorChanged) {
+                        Bitmap currentBit = ((BitmapDrawable) pictureView.getDrawable()).getBitmap();
+                        switch (motionEvent.getAction()) {
+                            case MotionEvent.ACTION_DOWN:
+                                return true;
+                            case MotionEvent.ACTION_MOVE:
+                                try {
+                                    for (int i = 0; i < currentBrush; i++) {
+                                        for (int j = 0; j < currentBrush; j++) {
+                                            currentBit.setPixel(Math.min(pictureBit.getWidth(), x+i), Math.min(pictureBit.getHeight(), y+j),
+                                                    pictureBit.getPixel(Math.min(pictureBit.getWidth(), x+i), Math.min(pictureBit.getHeight(), y+j)));
+                                        }
+                                    }
+
+                                    pictureView.setImageBitmap(currentBit);
+                                } catch (IllegalArgumentException e) {
+                                    e.printStackTrace();
+                                }
+
+                                return true;
+                            case MotionEvent.ACTION_UP:
+                                bitmaps.add(currentBit);
+                                return true;
+                            default:
+                                return PictureActivity.super.onTouchEvent(motionEvent);
+                        }
+                    }
+
+                    return true;
+                }
+            });
+
+            eraseButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (eraseActivated) {
+                        eraseButton.setImageResource(R.drawable.white_erase);
+                        eraseActivated = false;
+                    } else {
+                        eraseButton.setImageResource(R.drawable.blue_erase);
+                        eraseActivated = true;
+                        final Dialog eraseDialog = new Dialog(PictureActivity.this);
+                        eraseDialog.setTitle("Eraser size:");
+                        eraseDialog.setContentView(R.layout.brush_chooser);
+
+                        ImageButton smallBtn = eraseDialog.findViewById(R.id.small_brush);
+                        smallBtn.setOnClickListener(new View.OnClickListener(){
+                            @Override
+                            public void onClick(View v) {
+                                currentBrush = smallBrush;
+                                eraseDialog.dismiss();
+                            }
+                        });
+                        ImageButton mediumBtn = eraseDialog.findViewById(R.id.medium_brush);
+                        mediumBtn.setOnClickListener(new View.OnClickListener(){
+                            @Override
+                            public void onClick(View v) {
+                                currentBrush = mediumBrush;
+                                eraseDialog.dismiss();
+                            }
+                        });
+                        ImageButton largeBtn = eraseDialog.findViewById(R.id.large_brush);
+                        largeBtn.setOnClickListener(new View.OnClickListener(){
+                            @Override
+                            public void onClick(View v) {
+                                currentBrush = largeBrush;
+                                eraseDialog.dismiss();
                             }
                         });
 
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                        Toast.makeText(PictureActivity.this, "Color not chosen", Toast.LENGTH_LONG).show();
+                        eraseDialog.show();
                     }
-
-                    return false;
                 }
             });
 

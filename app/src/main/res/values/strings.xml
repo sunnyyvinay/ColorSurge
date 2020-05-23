@@ -7,4 +7,12 @@
     <string name="From">FROM:</string>
     <string name="To">TO:</string>
     <string name="Choose">Choose Color</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="erase">Erase</string>
+    <string name="save">Save</string>
+    <string name="picture">Picture</string>
+    <string name="sml">Small</string>
+    <string name="med">Medium</string>
+    <string name="lrg">Large</string>
 </resources>
