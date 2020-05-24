@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -377,8 +378,6 @@ public class PictureActivity extends AppCompatActivity {
                         eraseButton.setImageResource(R.drawable.white_erase);
                         eraseActivated = false;
                     } else {
-                        eraseButton.setImageResource(R.drawable.blue_erase);
-                        eraseActivated = true;
                         final Dialog eraseDialog = new Dialog(PictureActivity.this);
                         eraseDialog.setTitle("Eraser size:");
                         eraseDialog.setContentView(R.layout.brush_chooser);
@@ -388,6 +387,8 @@ public class PictureActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View v) {
                                 currentBrush = smallBrush;
+                                eraseButton.setImageResource(R.drawable.blue_erase);
+                                eraseActivated = true;
                                 eraseDialog.dismiss();
                             }
                         });
@@ -396,6 +397,8 @@ public class PictureActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View v) {
                                 currentBrush = mediumBrush;
+                                eraseButton.setImageResource(R.drawable.blue_erase);
+                                eraseActivated = true;
                                 eraseDialog.dismiss();
                             }
                         });
@@ -404,6 +407,8 @@ public class PictureActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View v) {
                                 currentBrush = largeBrush;
+                                eraseButton.setImageResource(R.drawable.blue_erase);
+                                eraseActivated = true;
                                 eraseDialog.dismiss();
                             }
                         });
