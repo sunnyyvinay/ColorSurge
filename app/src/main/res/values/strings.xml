@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">ColorSurge</string>
-    <string name="TitleText">Recolor any part of your pictures! Choose an option below to get started...</string>
+    <string name="TitleText">Recolor any part of your pictures! Choose an option below to get started…</string>
     <string name="CameraOption">TAKE A PICTURE</string>
     <string name="FileOption">CHOOSE A PICTURE</string>
     <string name="RecolorInstructions">Touch the color on the image that you want to recolor. Then choose a color from the \"To\" drop down list below and click \"Recolor\".</string>
@@ -15,4 +15,10 @@
     <string name="sml">Small</string>
     <string name="med">Medium</string>
     <string name="lrg">Large</string>
+    <string name="FromColor">From Color</string>
+    <string name="ToColor">To Color</string>
+    <string name="FromInstruction">Click on the color that you want to change on your picture</string>
+    <string name="ToInstruction">Click here to choose the new color</string>
+    <string name="Hex">Hex: #0099ff</string>
+    <string name="SelectedHex">Hex: </string>
 </resources>

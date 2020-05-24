@@ -57,13 +57,12 @@ public class PictureActivity extends AppCompatActivity {
 
     ActionBar bar;
     private ImageView fromColorImage;
-    private TextView redColor;
-    private TextView greenColor;
-    private TextView blueColor;
-    private TextView hexText;
+    private TextView fromInstruction;
 
     private ImageView toColorImage;
+    private TextView toInstruction;
     private int toColor = Color.parseColor("#0099ff");
+    private TextView toHexColor;
     private ImageButton undoButton;
     private ImageButton redoButton;
     private ImageButton saveButton;
@@ -84,15 +83,12 @@ public class PictureActivity extends AppCompatActivity {
 
         pictureView = findViewById(R.id.pictureView);
         fromColorImage = findViewById(R.id.fromColorImage);
-        redColor = findViewById(R.id.redColor);
-        greenColor = findViewById(R.id.greenColor);
-        blueColor = findViewById(R.id.blueColor);
-        hexText = findViewById(R.id.hexText);
+        fromInstruction = findViewById(R.id.fromInstruction);
 
         toColorImage = findViewById(R.id.toColorImage);
-        toColorImage.setVisibility(View.VISIBLE);
+        toInstruction = findViewById(R.id.toInstruction);
+        toHexColor = findViewById(R.id.toHexColor);
         toColorImage.setColorFilter(Color.parseColor("#0099ff"));
-        //recolorButton = findViewById(R.id.recolorButton);
 
         undoButton = findViewById(R.id.undoButton);
         undoButton.setEnabled(false);
@@ -107,6 +103,7 @@ public class PictureActivity extends AppCompatActivity {
         currentBrush = mediumBrush;
 
         bar = getSupportActionBar();
+        assert bar != null;
         bar.setDisplayHomeAsUpEnabled(true);
 
         if ((getIntent().getStringExtra("Location")).equals("Camera")) {
@@ -114,7 +111,7 @@ public class PictureActivity extends AppCompatActivity {
             || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_REQUEST);
             } else {
-                openCameraTocaptureImage();
+                openCameraToCaptureImage();
             }
 
         } else { // User wants gallery
@@ -124,8 +121,6 @@ public class PictureActivity extends AppCompatActivity {
             } else { // Permissions already granted
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
-                //String[] mimeTypes = {"image/jpeg", "image/png"};
-                //intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                 startActivityForResult(intent, GALLERY_REQUEST);
             }
         }
@@ -147,7 +142,7 @@ public class PictureActivity extends AppCompatActivity {
             case CAMERA_REQUEST:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show();
-                    openCameraTocaptureImage();
+                    openCameraToCaptureImage();
                 } else {
                     Toast.makeText(this, "Camera permission denied", Toast.LENGTH_LONG).show();
                 }
@@ -191,12 +186,6 @@ public class PictureActivity extends AppCompatActivity {
                     pictureView.setImageBitmap(pictureBit);
                     break;
             }
-            pictureView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return false;
-                }
-            });
 
             pictureView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
@@ -211,20 +200,19 @@ public class PictureActivity extends AppCompatActivity {
 
                     if (!eraseActivated) {
                         try {
+                            fromInstruction.setVisibility(View.GONE);
+                            toInstruction.setVisibility(View.GONE);
+                            fromColorImage.setVisibility(View.VISIBLE);
+                            toColorImage.setVisibility(View.VISIBLE);
+                            toHexColor.setVisibility(View.VISIBLE);
                             final int originalPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
 
                             // represents RGB of original clicked on pixel
                             final int pixRed = Color.red(originalPixel);
-                            redColor.setText("R: " + pixRed);
-                            final int pixBlue = Color.blue(originalPixel);
-                            blueColor.setText("B: " + pixBlue);
                             final int pixGreen = Color.green(originalPixel);
-                            greenColor.setText("G: " + pixGreen);
+                            final int pixBlue = Color.blue(originalPixel);
 
                             final String hex = String.format("#%02X%02X%02X", pixRed, pixGreen, pixBlue);
-                            hexText.setText("Hex: " + hex);
-
-                            fromColorImage.setVisibility(View.VISIBLE);
                             fromColorImage.setColorFilter(Color.parseColor(hex));
 
                             toColorImage.setOnClickListener(new View.OnClickListener() {
@@ -247,6 +235,8 @@ public class PictureActivity extends AppCompatActivity {
                                                     toColorImage.setColorFilter(selectedColor);
                                                     toColor = selectedColor;
                                                     colorChanged = true;
+                                                    toHexColor.setText(String.format("%s%s", getString(R.string.SelectedHex),
+                                                            String.format("#%02X%02X%02X", getRed(selectedColor), getGreen(selectedColor), getBlue(selectedColor))));
 
                                                     // Represents RGB of user selected color
                                                     int toRed = getRed(selectedColor);
@@ -280,17 +270,6 @@ public class PictureActivity extends AppCompatActivity {
 
                                                     resultBit.setPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
 
-                                                /*
-                                                redColor.setText("R: " + Color.red(selectedColor));
-                                                blueColor.setText("B: " + Color.blue(selectedColor));
-                                                greenColor.setText("G: " + Color.green(selectedColor));
-
-                                                String newHex = String.format("#%02X%02X%02X", Color.red(selectedColor), Color.green(selectedColor), Color.blue(selectedColor));
-                                                hexText.setText("Hex: " + newHex);
-
-                                                fromColorImage.setColorFilter(Color.parseColor(newHex));
-                                                 */
-
                                                     bitmaps.add(resultBit);
                                                     pictureView.setImageBitmap(resultBit);
 
@@ -300,6 +279,7 @@ public class PictureActivity extends AppCompatActivity {
                                                         public void onClick(View v) {
                                                             if (bitmaps.size() > 1) {
                                                                 pictureView.setImageBitmap(bitmaps.get(bitmaps.size() - 2));
+                                                                pictureView.invalidate();
                                                                 undoneBitmaps.add(bitmaps.remove(bitmaps.size() - 1));
                                                                 if (bitmaps.size() == 1) {
                                                                     undoButton.setEnabled(false);
@@ -339,8 +319,8 @@ public class PictureActivity extends AppCompatActivity {
                             Toast.makeText(PictureActivity.this, "Color not chosen", Toast.LENGTH_LONG).show();
                         }
 
-                    } else if (colorChanged) {
-                        Bitmap currentBit = ((BitmapDrawable) pictureView.getDrawable()).getBitmap();
+                    } else if (colorChanged || !((BitmapDrawable) pictureView.getDrawable()).getBitmap().equals(pictureBit)) {
+                        Bitmap currentBit = Bitmap.createBitmap(((BitmapDrawable) pictureView.getDrawable()).getBitmap());
                         switch (motionEvent.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 return true;
@@ -483,7 +463,7 @@ public class PictureActivity extends AppCompatActivity {
         return rgb;
     }
 
-    private void openCameraTocaptureImage() {
+    private void openCameraToCaptureImage() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {

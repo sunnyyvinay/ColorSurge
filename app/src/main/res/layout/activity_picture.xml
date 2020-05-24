@@ -51,6 +51,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="60dp"
                         android:layout_weight="1"
+                        android:contentDescription="@string/erase"
                         app:srcCompat="@drawable/white_erase" />
 
                     <ImageButton
@@ -70,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
                 android:contentDescription="@string/picture"
-                android:src="@drawable/ic_launcher_background"></ImageView>
+                android:src="@drawable/ic_launcher_background" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/paletteLayout"
@@ -83,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:fontFamily="casual"
+                    android:fontFamily="serif"
                     android:text="@string/From"
                     android:textColor="?attr/colorAccent"
                     android:textSize="18sp"
@@ -94,13 +95,30 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/fromInstruction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:text="@string/FromInstruction"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    app:layout_constraintBottom_toTopOf="@+id/toText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.428"
+                    app:layout_constraintStart_toEndOf="@+id/fromText"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.75" />
+
                 <ImageView
                     android:id="@+id/fromColorImage"
-                    android:layout_width="20dp"
+                    android:layout_width="0dp"
                     android:layout_height="20dp"
                     android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/FromColor"
                     android:src="@android:color/holo_blue_light"
-                    android:visibility="invisible"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -109,67 +127,13 @@
                     app:srcCompat="@drawable/ic_launcher_background" />
 
                 <TextView
-                    android:id="@+id/redColor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="R: ---"
-                    android:textColor="#FF0000"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/fromColorImage"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/greenColor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="G: ---"
-                    android:textColor="#00FF00"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/redColor"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/blueColor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="B: ---"
-                    android:textColor="#2C71E7"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/greenColor"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/hexText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="Hex: -"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/blueColor"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
                     android:id="@+id/toText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="64dp"
                     android:layout_marginEnd="8dp"
-                    android:fontFamily="casual"
+                    android:fontFamily="serif"
                     android:text="@string/To"
                     android:textColor="?attr/colorAccent"
                     android:textSize="18sp"
@@ -180,13 +144,35 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/toInstruction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="11dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="138dp"
+                    android:layout_marginBottom="5dp"
+                    android:fontFamily="serif"
+                    android:text="@string/ToInstruction"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.066"
+                    app:layout_constraintStart_toEndOf="@+id/toText"
+                    app:layout_constraintTop_toBottomOf="@+id/fromText"
+                    app:layout_constraintVertical_bias="1.0" />
+
                 <ImageView
                     android:id="@+id/toColorImage"
-                    android:layout_width="20dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="20dp"
-                    android:layout_marginStart="45dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="64dp"
-                    android:visibility="invisible"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/ToColor"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -195,16 +181,20 @@
                     app:srcCompat="@drawable/ic_launcher_background" />
 
                 <TextView
-                    android:id="@+id/chooseText"
+                    android:id="@+id/toHexColor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="64dp"
-                    android:text="@string/Choose"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/Hex"
+                    android:textColor="?attr/colorAccent"
+                    android:textStyle="bold"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.07"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/toColorImage"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@+id/fromInstruction" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
