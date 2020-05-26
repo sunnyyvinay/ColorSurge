@@ -58,6 +58,7 @@ public class PictureActivity extends AppCompatActivity {
     ActionBar bar;
     private ImageView fromColorImage;
     private TextView fromInstruction;
+    private TextView fromHexColor;
 
     private ImageView toColorImage;
     private TextView toInstruction;
@@ -84,6 +85,7 @@ public class PictureActivity extends AppCompatActivity {
         pictureView = findViewById(R.id.pictureView);
         fromColorImage = findViewById(R.id.fromColorImage);
         fromInstruction = findViewById(R.id.fromInstruction);
+        fromHexColor = findViewById(R.id.fromHexColor);
 
         toColorImage = findViewById(R.id.toColorImage);
         toInstruction = findViewById(R.id.toInstruction);
@@ -106,7 +108,7 @@ public class PictureActivity extends AppCompatActivity {
         assert bar != null;
         bar.setDisplayHomeAsUpEnabled(true);
 
-        if ((getIntent().getStringExtra("Location")).equals("Camera")) {
+        if ("Camera".equals(getIntent().getStringExtra("Location"))) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
             || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_REQUEST);
@@ -174,8 +176,6 @@ public class PictureActivity extends AppCompatActivity {
                     break;
 
                 case CAMERA_REQUEST:
-                    File f = new File(currentPhotoPath);
-
                     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                     bmOptions.inJustDecodeBounds = true;
 
@@ -205,6 +205,7 @@ public class PictureActivity extends AppCompatActivity {
                             fromColorImage.setVisibility(View.VISIBLE);
                             toColorImage.setVisibility(View.VISIBLE);
                             toHexColor.setVisibility(View.VISIBLE);
+                            fromHexColor.setVisibility(View.VISIBLE);
                             final int originalPixel = ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixel(x, y);
 
                             // represents RGB of original clicked on pixel
@@ -214,6 +215,7 @@ public class PictureActivity extends AppCompatActivity {
 
                             final String hex = String.format("#%02X%02X%02X", pixRed, pixGreen, pixBlue);
                             fromColorImage.setColorFilter(Color.parseColor(hex));
+                            fromHexColor.setText(hex);
 
                             toColorImage.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -235,8 +237,7 @@ public class PictureActivity extends AppCompatActivity {
                                                     toColorImage.setColorFilter(selectedColor);
                                                     toColor = selectedColor;
                                                     colorChanged = true;
-                                                    toHexColor.setText(String.format("%s%s", getString(R.string.SelectedHex),
-                                                            String.format("#%02X%02X%02X", getRed(selectedColor), getGreen(selectedColor), getBlue(selectedColor))));
+                                                    toHexColor.setText(String.format("#%02X%02X%02X", getRed(selectedColor), getGreen(selectedColor), getBlue(selectedColor)));
 
                                                     // Represents RGB of user selected color
                                                     int toRed = getRed(selectedColor);
@@ -248,7 +249,7 @@ public class PictureActivity extends AppCompatActivity {
                                                     int fromPixG = toGreen - pixGreen;
                                                     int fromPixB = toBlue - pixBlue;
 
-                                                    Bitmap resultBit = Bitmap.createBitmap(pictureBit.getWidth(), pictureBit.getHeight(), Bitmap.Config.ARGB_8888);;
+                                                    Bitmap resultBit = Bitmap.createBitmap(pictureBit.getWidth(), pictureBit.getHeight(), Bitmap.Config.ARGB_8888);
 
                                                     int[] pixels = new int[pictureBit.getHeight()*pictureBit.getWidth()];
                                                     ((BitmapDrawable) pictureView.getDrawable()).getBitmap().getPixels(pixels, 0, pictureBit.getWidth(), 0, 0, pictureBit.getWidth(), pictureBit.getHeight());
@@ -357,6 +358,7 @@ public class PictureActivity extends AppCompatActivity {
                     if (eraseActivated) {
                         eraseButton.setImageResource(R.drawable.white_erase);
                         eraseActivated = false;
+                        Toast.makeText(PictureActivity.this, "Eraser deactivated", Toast.LENGTH_SHORT).show();
                     } else {
                         final Dialog eraseDialog = new Dialog(PictureActivity.this);
                         eraseDialog.setTitle("Eraser size:");
@@ -369,6 +371,7 @@ public class PictureActivity extends AppCompatActivity {
                                 currentBrush = smallBrush;
                                 eraseButton.setImageResource(R.drawable.blue_erase);
                                 eraseActivated = true;
+                                Toast.makeText(PictureActivity.this, "Eraser activated", Toast.LENGTH_SHORT).show();
                                 eraseDialog.dismiss();
                             }
                         });
@@ -379,6 +382,7 @@ public class PictureActivity extends AppCompatActivity {
                                 currentBrush = mediumBrush;
                                 eraseButton.setImageResource(R.drawable.blue_erase);
                                 eraseActivated = true;
+                                Toast.makeText(PictureActivity.this, "Eraser activated", Toast.LENGTH_SHORT).show();
                                 eraseDialog.dismiss();
                             }
                         });
@@ -389,6 +393,7 @@ public class PictureActivity extends AppCompatActivity {
                                 currentBrush = largeBrush;
                                 eraseButton.setImageResource(R.drawable.blue_erase);
                                 eraseActivated = true;
+                                Toast.makeText(PictureActivity.this, "Eraser activated", Toast.LENGTH_SHORT).show();
                                 eraseDialog.dismiss();
                             }
                         });

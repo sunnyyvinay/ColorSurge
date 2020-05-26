@@ -73,130 +73,110 @@
                 android:contentDescription="@string/picture"
                 android:src="@drawable/ic_launcher_background" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/paletteLayout"
+            <LinearLayout
+                android:id="@+id/fromLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/fromText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
                     android:fontFamily="serif"
                     android:text="@string/From"
                     android:textColor="?attr/colorAccent"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/fromInstruction"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
                     android:fontFamily="serif"
                     android:text="@string/FromInstruction"
                     android:textSize="12sp"
                     android:textStyle="italic"
-                    app:layout_constraintBottom_toTopOf="@+id/toText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.428"
-                    app:layout_constraintStart_toEndOf="@+id/fromText"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.75" />
+                    android:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/fromHexColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <ImageView
                     android:id="@+id/fromColorImage"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="20dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:contentDescription="@string/FromColor"
                     android:src="@android:color/holo_blue_light"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/fromText"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_launcher_background" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/toLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/toText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="64dp"
-                    android:layout_marginEnd="8dp"
                     android:fontFamily="serif"
                     android:text="@string/To"
                     android:textColor="?attr/colorAccent"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/toInstruction"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="11dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="138dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginStart="3dp"
                     android:fontFamily="serif"
                     android:text="@string/ToInstruction"
                     android:textSize="12sp"
                     android:textStyle="italic"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.066"
-                    app:layout_constraintStart_toEndOf="@+id/toText"
-                    app:layout_constraintTop_toBottomOf="@+id/fromText"
-                    app:layout_constraintVertical_bias="1.0" />
-
-                <ImageView
-                    android:id="@+id/toColorImage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="64dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="@string/ToColor"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/toText"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_launcher_background" />
+                    android:visibility="visible" />
 
                 <TextView
                     android:id="@+id/toHexColor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="14dp"
                     android:text="@string/Hex"
+                    android:textAlignment="center"
                     android:textColor="?attr/colorAccent"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/toColorImage"
-                    app:layout_constraintTop_toBottomOf="@+id/fromInstruction" />
+                    android:visibility="gone" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <ImageView
+                    android:id="@+id/toColorImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/FromColor"
+                    android:src="@android:color/holo_blue_light"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_launcher_background" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

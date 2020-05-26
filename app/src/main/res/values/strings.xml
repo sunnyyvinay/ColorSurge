@@ -19,6 +19,6 @@
     <string name="ToColor">To Color</string>
     <string name="FromInstruction">Click on the color that you want to change on your picture</string>
     <string name="ToInstruction">Click here to choose the new color</string>
-    <string name="Hex">Hex: #0099ff</string>
-    <string name="SelectedHex">Hex: </string>
+    <string name="Hex">Choose color</string>
+    <string name="AppLogo">AppLogo</string>
 </resources>
