@@ -17,8 +17,9 @@
     <string name="lrg">Large</string>
     <string name="FromColor">From Color</string>
     <string name="ToColor">To Color</string>
-    <string name="FromInstruction">Click on the color that you want to change on your picture</string>
-    <string name="ToInstruction">Click here to choose the new color</string>
+    <string name="FromInstruction">Touch the color on the picture that you want to recolor</string>
+    <string name="ToInstruction">Touch here to choose the new color</string>
     <string name="Hex">Choose color</string>
     <string name="AppLogo">AppLogo</string>
+    <string name="EraserInstructions">Use the Eraser Tool to undo any unwanted color changes. This message will only show once.</string>
 </resources>

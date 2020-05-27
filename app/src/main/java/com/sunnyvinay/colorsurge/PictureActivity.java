@@ -12,8 +12,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -51,6 +53,9 @@ public class PictureActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
     private static final int GALLERY_REQUEST = 1889;
 
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
+
     private ImageView pictureView;
     String currentPhotoPath;
     Bitmap pictureBit = null;
@@ -81,6 +86,9 @@ public class PictureActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture);
+
+        settings = PictureActivity.this.getSharedPreferences("com.sunnyvinay.colorsurge", Context.MODE_PRIVATE);
+        editor = settings.edit();
 
         pictureView = findViewById(R.id.pictureView);
         fromColorImage = findViewById(R.id.fromColorImage);
@@ -238,6 +246,24 @@ public class PictureActivity extends AppCompatActivity {
                                                     toColor = selectedColor;
                                                     colorChanged = true;
                                                     toHexColor.setText(String.format("#%02X%02X%02X", getRed(selectedColor), getGreen(selectedColor), getBlue(selectedColor)));
+
+                                                    if (settings.getBoolean("EraserIntro", true)) {
+                                                        new AlertDialog.Builder(PictureActivity.this)
+                                                            .setTitle("Eraser Tool")
+                                                            .setIcon(R.drawable.blue_erase)
+                                                            .setMessage(getResources().getString(R.string.EraserInstructions))
+                                                            .setCancelable(false)
+                                                            .setNeutralButton("GOT IT!", new DialogInterface.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(DialogInterface dialog, int which) {
+                                                                    dialog.dismiss();
+                                                                    editor.putBoolean("EraserIntro", false);
+                                                                    editor.commit();
+                                                                    editor.apply();
+                                                                }
+                                                            })
+                                                            .show();
+                                                    }
 
                                                     // Represents RGB of user selected color
                                                     int toRed = getRed(selectedColor);
