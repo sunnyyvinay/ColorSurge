@@ -195,6 +195,24 @@ public class PictureActivity extends AppCompatActivity {
                     break;
             }
 
+            if (settings.getBoolean("ColorTip", true)) {
+                new AlertDialog.Builder(PictureActivity.this)
+                        .setTitle("Coloring Tip")
+                        .setIcon(R.drawable.blue_light)
+                        .setMessage(getResources().getString(R.string.ColorTip))
+                        .setCancelable(false)
+                        .setNeutralButton("GOT IT!", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                editor.putBoolean("ColorTip", false);
+                                editor.commit();
+                                editor.apply();
+                            }
+                        })
+                        .show();
+            }
+
             pictureView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
                 @Override

@@ -22,4 +22,5 @@
     <string name="Hex">Choose color</string>
     <string name="AppLogo">AppLogo</string>
     <string name="EraserInstructions">Use the Eraser Tool to undo any unwanted color changes. This message will only show once.</string>
+    <string name="ColorTip">For best results, account for shades when recoloring. For example, recolor dark shades of red with dark shades of blue using the sliders of the color picker</string>
 </resources>
