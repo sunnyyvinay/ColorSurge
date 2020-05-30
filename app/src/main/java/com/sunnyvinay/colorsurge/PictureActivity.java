@@ -42,6 +42,7 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -451,26 +452,30 @@ public class PictureActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try {
+                        Bitmap bitToSave = Bitmap.createBitmap(((BitmapDrawable) pictureView.getDrawable()).getBitmap());
+                        ContentValues values = new ContentValues();
+                        String filename = System.currentTimeMillis() + ".jpg";
+
+                        values.put(MediaStore.Images.Media.TITLE, filename);
+                        values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
+                        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+                        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+                        values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/");
+
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            ContentValues values = new ContentValues();
-                            String filename = System.currentTimeMillis() + ".jpg";
-
-                            values.put(MediaStore.Images.Media.TITLE, filename);
-                            values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
-                            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-                            values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-                            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-                            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/");
-
                             Uri uri = getApplicationContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                             if (uri != null) {
-                                saveImageToStream(((BitmapDrawable) pictureView.getDrawable()).getBitmap(), getApplicationContext().getContentResolver().openOutputStream(uri));
+                                //saveImageToStream(((BitmapDrawable) pictureView.getDrawable()).getBitmap(), getApplicationContext().getContentResolver().openOutputStream(uri));
+                                saveImageToStream(bitToSave, getApplicationContext().getContentResolver().openOutputStream(uri));
                                 values.put(MediaStore.Images.Media.IS_PENDING, false);
                                 getApplicationContext().getContentResolver().update(uri, values, null, null);
                             }
 
-                        } else {
-                            MediaStore.Images.Media.insertImage(getContentResolver(), ((BitmapDrawable) pictureView.getDrawable()).getBitmap(), "", "");
+                        }
+                        else {
+                            //MediaStore.Images.Media.insertImage(getContentResolver(), ((BitmapDrawable) pictureView.getDrawable()).getBitmap(), "", "");
+                            MediaStore.Images.Media.insertImage(getContentResolver(), bitToSave, "", "");
                         }
 
                         Toast.makeText(PictureActivity.this, "Saved to Gallery", Toast.LENGTH_LONG).show();
