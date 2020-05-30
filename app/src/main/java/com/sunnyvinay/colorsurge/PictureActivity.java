@@ -263,7 +263,7 @@ public class PictureActivity extends AppCompatActivity {
                                                     toColorImage.setColorFilter(selectedColor);
                                                     toColor = selectedColor;
                                                     colorChanged = true;
-                                                    toHexColor.setText(String.format("#%02X%02X%02X", getRed(selectedColor), getGreen(selectedColor), getBlue(selectedColor)));
+                                                    toHexColor.setText(String.format("%s#%02X%02X%02X", "      ", getRed(selectedColor), getGreen(selectedColor), getBlue(selectedColor)));
 
                                                     if (settings.getBoolean("EraserIntro", true)) {
                                                         new AlertDialog.Builder(PictureActivity.this)
