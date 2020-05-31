@@ -147,6 +147,7 @@ public class PictureActivity extends AppCompatActivity {
                     startActivityForResult(galleryIntent, GALLERY_REQUEST);
                 } else {
                     // User denied permission
+                    backToMain();
                     Toast.makeText(this, "Gallery permission denied", Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -155,6 +156,7 @@ public class PictureActivity extends AppCompatActivity {
                     Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show();
                     openCameraToCaptureImage();
                 } else {
+                    backToMain();
                     Toast.makeText(this, "Camera permission denied", Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -572,5 +574,10 @@ public class PictureActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void backToMain() {
+        Intent intent = new Intent(PictureActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 }
