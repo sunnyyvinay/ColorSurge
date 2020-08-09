@@ -17,11 +17,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -170,29 +172,89 @@ public class PictureActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_REQUEST:
+
                     InputStream inputStream;
+                    ExifInterface ei = null;
+                    try {
+                        Uri selectedImageURI = data.getData();
+                        String path = getPath(getApplicationContext(), selectedImageURI);
+                        ei = new ExifInterface(path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_UNDEFINED);
+
                     try {
                         inputStream = getApplicationContext().getContentResolver().openInputStream(data.getData());
                         pictureBit = BitmapFactory.decodeStream(inputStream);
+                        switch(orientation) {
+                            case ExifInterface.ORIENTATION_ROTATE_90:
+                                pictureBit = rotateImage(pictureBit, 90);
+                                break;
+
+                            case ExifInterface.ORIENTATION_ROTATE_180:
+                                pictureBit = rotateImage(pictureBit, 180);
+                                break;
+
+                            case ExifInterface.ORIENTATION_ROTATE_270:
+                                pictureBit = rotateImage(pictureBit, 270);
+                                break;
+
+                            case ExifInterface.ORIENTATION_NORMAL:
+                        }
+
                         bitmaps.add(pictureBit);
                         pictureView.setImageBitmap(pictureBit);
                         inputStream.close();
+
                     } catch (FileNotFoundException e) {
-                        Toast.makeText(this, "File not found", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "File not found. Try again later.", Toast.LENGTH_LONG).show();
                         e.printStackTrace();
                     } catch (NullPointerException | IOException e) {
-                        Toast.makeText(this, "An error occurred. Try again later", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "An error occurred. Try again later.", Toast.LENGTH_LONG).show();
                         e.printStackTrace();
                     }
+
                     break;
 
                 case CAMERA_REQUEST:
+                    ei = null;
+                    try {
+                        //Uri selectedImageURI = data.getData();
+                        //String path = getPath(getApplicationContext(), selectedImageURI);
+                        ei = new ExifInterface(currentPhotoPath);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_UNDEFINED);
+
                     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                     bmOptions.inJustDecodeBounds = true;
 
                     bmOptions.inJustDecodeBounds = false;
 
                     pictureBit = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+
+                    switch(orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            pictureBit = rotateImage(pictureBit, 90);
+                            break;
+
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            pictureBit = rotateImage(pictureBit, 180);
+                            break;
+
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            pictureBit = rotateImage(pictureBit, 270);
+                            break;
+
+                        case ExifInterface.ORIENTATION_NORMAL:
+                    }
+
                     bitmaps.add(pictureBit);
                     pictureView.setImageBitmap(pictureBit);
                     break;
@@ -374,6 +436,7 @@ public class PictureActivity extends AppCompatActivity {
                                 return true;
                             case MotionEvent.ACTION_MOVE:
                                 try {
+
                                     for (int i = 0; i < currentBrush; i++) {
                                         for (int j = 0; j < currentBrush; j++) {
                                             currentBit.setPixel(Math.min(pictureBit.getWidth(), x+i), Math.min(pictureBit.getHeight(), y+j),
@@ -579,5 +642,29 @@ public class PictureActivity extends AppCompatActivity {
     private void backToMain() {
         Intent intent = new Intent(PictureActivity.this, MainActivity.class);
         startActivity(intent);
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
+
+    public static String getPath( Context context, Uri uri ) {
+        String result = null;
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = context.getContentResolver( ).query( uri, proj, null, null, null );
+        if(cursor != null){
+            if ( cursor.moveToFirst( ) ) {
+                int column_index = cursor.getColumnIndexOrThrow( proj[0] );
+                result = cursor.getString( column_index );
+            }
+            cursor.close( );
+        }
+        if(result == null) {
+            result = "Not found";
+        }
+        return result;
     }
 }
