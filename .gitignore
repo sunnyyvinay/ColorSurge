@@ -4,6 +4,7 @@
 *.ap_
 *.aab
 *.iml
+.idea/
 
 # Files for the ART/Dalvik VM
 *.dex
@@ -15,7 +16,8 @@
 bin/
 gen/
 out/
-app/.DS_Store
+.DS_Store
+
 #  Uncomment the following line in case you need and you don't have the release build type files in your app
 # release/
 
