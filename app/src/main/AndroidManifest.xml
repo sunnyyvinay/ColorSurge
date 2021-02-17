@@ -13,8 +13,8 @@
         android:roundIcon="@mipmap/app_ic_round"
         android:supportsRtl="true"
         android:theme="@style/BlueSurge"
-        android:versionCode="3"
-        android:versionName="1.3"
+        android:versionCode="4"
+        android:versionName="1.4"
         android:requestLegacyExternalStorage="true">
 
         <activity android:name=".PictureActivity" android:configChanges="orientation|screenSize" />

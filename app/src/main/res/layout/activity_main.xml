@@ -1,72 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="169dp"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="170dp"
-            android:layout_marginBottom="33dp"
-            app:srcCompat="@mipmap/app_ic"
-            android:contentDescription="@string/AppLogo" />
-
-        <TextView
-            android:id="@+id/textView"
+        android:layout_height="wrap_content">
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="70dp"
-            android:fontFamily="casual"
-            android:text="@string/TitleText"
-            android:textAlignment="center"
-            android:textColor="?attr/colorAccent"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:id="@+id/linearLayout"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/camButton"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="20dp"
-            android:background="?attr/colorPrimary"
-            android:text="@string/CameraOption"
-            android:textColor="?attr/colorAccent"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"/>
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="33dp"
+                android:contentDescription="@string/AppLogo"
+                app:srcCompat="@mipmap/app_ic" />
 
-        <Button
-            android:id="@+id/fileButton"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="225dp"
-            android:background="?attr/colorPrimary"
-            android:text="@string/FileOption"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"/>
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="casual"
+                android:text="@string/TitleText"
+                android:textAlignment="center"
+                android:textColor="?attr/colorAccent"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/camButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="100dp"
+                android:layout_marginBottom="20dp"
+                android:background="?attr/colorPrimary"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="@string/CameraOption"
+                android:textColor="?attr/colorAccent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <Button
+                android:id="@+id/fileButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="225dp"
+                android:background="?attr/colorPrimary"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="@string/FileOption" />
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
