@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ColorSurge</string>
+    <string name="app_name">Color Surge</string>
     <string name="TitleText">Recolor any part of your pictures! Choose an option below to get started…</string>
     <string name="CameraOption">TAKE A PICTURE</string>
     <string name="FileOption">CHOOSE A PICTURE</string>
