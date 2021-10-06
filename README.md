@@ -6,3 +6,5 @@ ColorSurge is a photo editing app on the Google Play Store specifically for easy
 - Undo or redo changes
 - Erase any unwanted color changes with different brush sizes
 - Save edited photo to your gallery
+
+Google Play Store: https://play.google.com/store/apps/details?id=com.sunnyvinay.colorsurge
