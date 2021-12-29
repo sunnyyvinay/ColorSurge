@@ -36,6 +36,7 @@
                         android:layout_height="60dp"
                         android:layout_weight="1"
                         android:contentDescription="@string/undo"
+                        android:tint="?attr/colorAccent"
                         app:srcCompat="@drawable/white_undo" />
 
                     <ImageButton
@@ -44,6 +45,7 @@
                         android:layout_height="60dp"
                         android:layout_weight="1"
                         android:contentDescription="@string/redo"
+                        android:tint="?attr/colorAccent"
                         app:srcCompat="@drawable/white_redo" />
 
                     <ImageButton
@@ -52,6 +54,7 @@
                         android:layout_height="60dp"
                         android:layout_weight="1"
                         android:contentDescription="@string/erase"
+                        android:tint="?attr/colorAccent"
                         app:srcCompat="@drawable/white_erase" />
 
                     <ImageButton
@@ -60,6 +63,7 @@
                         android:layout_height="60dp"
                         android:layout_weight="1"
                         android:contentDescription="@string/save"
+                        android:tint="?attr/colorAccent"
                         app:srcCompat="@drawable/white_save" />
 
                 </LinearLayout>

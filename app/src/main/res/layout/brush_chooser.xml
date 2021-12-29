@@ -21,7 +21,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/lightBlue"/>
+        android:background="@color/azure"/>
 
     <ImageButton
         android:id="@+id/small_brush"

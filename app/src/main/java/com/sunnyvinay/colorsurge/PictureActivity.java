@@ -44,7 +44,6 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -87,10 +86,18 @@ public class PictureActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        settings = PictureActivity.this.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+
         super.onCreate(savedInstanceState);
+
+        if (settings.getBoolean("Theme", true)) {
+            this.setTheme(R.style.Azure);
+        } else {
+            this.setTheme(R.style.Azurelight);
+        }
+
         setContentView(R.layout.activity_picture);
 
-        settings = PictureActivity.this.getSharedPreferences("com.sunnyvinay.colorsurge", Context.MODE_PRIVATE);
         editor = settings.edit();
 
         pictureView = findViewById(R.id.pictureView);
@@ -312,7 +319,7 @@ public class PictureActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     ColorPickerDialogBuilder
-                                            .with(PictureActivity.this, R.style.BlueSurge)
+                                            .with(PictureActivity.this)
                                             .setTitle("Choose color")
                                             .initialColor(toColor)
                                             .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
